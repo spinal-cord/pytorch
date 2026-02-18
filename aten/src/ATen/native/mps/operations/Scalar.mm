@@ -4,7 +4,13 @@
 #include <ATen/Dispatch_v2.h>
 #include <ATen/native/mps/Copy.h>
 #include <ATen/native/mps/OperationUtils.h>
+
+#ifndef AT_PER_OPERATOR_HEADERS
+#include <ATen/Functions.h>
+#include <ATen/NativeFunctions.h>
+#else
 #include <ATen/ops/_local_scalar_dense_native.h>
+#endif
 
 using namespace at::mps;
 

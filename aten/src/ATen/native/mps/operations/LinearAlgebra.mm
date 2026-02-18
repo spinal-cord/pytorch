@@ -966,7 +966,7 @@ static Tensor& tiled_bmm_out_mps_impl(const Tensor& batch1, const Tensor& batch2
 
         uint64_t elemInMatrix = resRows * resCols;
         // if largest supported batch size is zero, we need to split up the computation more
-        uint64_t largestSupportedBatchSize = floor(pow(2, 32) / elemInMatrix);
+        uint64_t largestSupportedBatchSize = std::floor(std::pow(2, 32) / elemInMatrix);
         bool tileEachMatmul = largestSupportedBatchSize == 0;
         uint64_t batchSize = largestSupportedBatchSize > 0 ? std::min(largestSupportedBatchSize, originalBatchSize) : 1;
         uint64_t lastBatchSize = originalBatchSize % batchSize;
@@ -974,7 +974,7 @@ static Tensor& tiled_bmm_out_mps_impl(const Tensor& batch1, const Tensor& batch2
         uint64_t aRowsTiled = aRows;
         uint64_t resRowsTiled = resRows;
         if (tileEachMatmul) {
-          uint64_t maxNumRows = floor(pow(2, 32) / resCols);
+          uint64_t maxNumRows = std::floor(std::pow(2, 32) / resCols);
           aRowsTiled = std::min(uint64_t(512), maxNumRows);
           resRowsTiled = aRowsTiled;
         }
@@ -1023,8 +1023,8 @@ static Tensor& tiled_bmm_out_mps_impl(const Tensor& batch1, const Tensor& batch2
           resDescLastTile_.preferPackedRows = true;
         }
 
-        uint64_t requiredIterations = ceil(float(originalBatchSize) / batchSize);
-        uint64_t requiredTileIterations = ceil(float(aRows) / aRowsTiled);
+        uint64_t requiredIterations = std::ceil(float(originalBatchSize) / batchSize);
+        uint64_t requiredTileIterations = std::ceil(float(aRows) / aRowsTiled);
         auto aDesc = aDesc_;
         auto bDesc = bDesc_;
         auto resDesc = resDesc_;
@@ -1072,7 +1072,7 @@ static Tensor& bmm_out_mps_impl(const Tensor& batch1, const Tensor& batch2, Tens
 
   // Matmul not supported if any output dimension size is larger than 2**32
   for (auto elem : result.sizes()) {
-    TORCH_CHECK_NOT_IMPLEMENTED(elem <= pow(2, 32),
+    TORCH_CHECK_NOT_IMPLEMENTED(elem <= std::pow(2, 32),
                                 "Output dim sizes larger than 2**32 elements for matmul not supported on MPS device.");
   }
 
@@ -1111,7 +1111,7 @@ static Tensor& bmm_out_mps_impl(const Tensor& batch1, const Tensor& batch2, Tens
 
   // Call tiled implementation if the number of elements exceeds 2^32
   uint64_t resultSize = batch1.size(0) * batch1.size(1) * batch2.size(2);
-  if (resultSize > pow(2, 32)) {
+  if (resultSize > std::pow(2, 32)) {
     result = tiled_bmm_out_mps_impl(batch1, batch2, result);
     return result;
   }
